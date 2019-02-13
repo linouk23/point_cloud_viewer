@@ -12,8 +12,7 @@ extern crate xray;
 
 use cgmath::{Point2, Point3};
 use collision::{Aabb, Aabb2, Aabb3};
-use octree::OnDiskOctree;
-use point_viewer::octree;
+use point_viewer::octree::octree_from_directory;
 use std::error::Error;
 use std::path::Path;
 use xray::generation::{xray_from_points, ColoringStrategyArgument, ColoringStrategyKind};
@@ -98,7 +97,7 @@ fn run(
     coloring_strategy_kind: ColoringStrategyKind,
     bbox2: &Aabb2<f32>,
 ) -> Result<(), Box<Error>> {
-    let octree = &OnDiskOctree::new(octree_directory)?;
+    let octree = &octree_from_directory(octree_directory)?;
     let bbox3 = octree.bounding_box();
     let bbox3 = Aabb3::new(
         Point3::new(

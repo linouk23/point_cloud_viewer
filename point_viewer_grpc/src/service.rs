@@ -26,7 +26,7 @@ use futures::{Future, Sink, Stream};
 use grpcio::{
     Environment, RpcContext, Server, ServerBuilder, ServerStreamingSink, UnarySink, WriteFlags,
 };
-use point_viewer::octree::{read_meta_proto, NodeId, Octree, OnDiskOctree};
+use point_viewer::octree::{octree_from_directory, read_meta_proto, NodeId, Octree};
 use point_viewer::{InternalIterator, Point};
 use proto;
 use proto_grpc;
@@ -36,7 +36,7 @@ use std::sync::Arc;
 
 #[derive(Clone)]
 struct OctreeService {
-    octree: Arc<OnDiskOctree>,
+    octree: Arc<Octree>,
     meta: point_viewer::proto::Meta,
 }
 
@@ -49,7 +49,7 @@ enum OctreeQuery {
 
 fn stream_points_back_to_sink(
     query: OctreeQuery,
-    octree: Arc<OnDiskOctree>,
+    octree: Arc<Octree>,
     ctx: RpcContext,
     resp: ServerStreamingSink<proto::PointsReply>,
 ) {
@@ -266,7 +266,7 @@ impl proto_grpc::Octree for OctreeService {
 pub fn start_grpc_server(octree_directory: PathBuf, host: &str, port: u16) -> Server {
     let env = Arc::new(Environment::new(1));
     let meta = read_meta_proto(&octree_directory).unwrap();
-    let octree = Arc::new(OnDiskOctree::new(octree_directory).unwrap());
+    let octree = Arc::new(octree_from_directory(octree_directory).unwrap());
 
     let service = proto_grpc::create_octree(OctreeService { octree, meta });
     let server = ServerBuilder::new(env)

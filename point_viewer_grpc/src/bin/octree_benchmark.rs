@@ -27,7 +27,7 @@ use std::sync::Arc;
 use futures::future::Future;
 use futures::Stream;
 use grpcio::{ChannelBuilder, Environment};
-use point_viewer::octree::OnDiskOctree;
+use point_viewer::octree::octree_from_directory;
 use point_viewer::{InternalIterator, Point};
 use point_viewer_grpc::proto_grpc::OctreeClient;
 use point_viewer_grpc::service::start_grpc_server;
@@ -70,7 +70,7 @@ fn main() {
 }
 
 fn server_benchmark(octree_directory: PathBuf, num_points: u64) {
-    let octree = OnDiskOctree::new(&octree_directory).expect(&format!(
+    let octree = octree_from_directory(&octree_directory).expect(&format!(
         "Could not create octree from '{}'",
         octree_directory.display()
     ));
